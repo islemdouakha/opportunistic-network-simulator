@@ -1,5 +1,7 @@
 package simulator;
 
+import javafx.application.Application;
+
 public class Main {
 
      static void main(String[] args){
@@ -8,6 +10,9 @@ public class Main {
 
         Simulator sim = new Simulator(30);
 
+        Visualizer.simulator = sim;
+
+        Application.launch(Visualizer.class);
         for (int i = 0; i < 1000; i++){
 
             sim.step();

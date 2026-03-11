@@ -62,6 +62,7 @@ public class Simulator {
         checkDelivery();
 
         time++;
+
     }
 
     private void moveNodes() {
