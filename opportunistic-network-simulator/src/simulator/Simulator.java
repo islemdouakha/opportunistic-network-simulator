@@ -7,11 +7,24 @@ import java.util.List;
 public class Simulator {
     List<Node> nodes = new ArrayList<>();
 
+    List<Message> messages = new ArrayList<>();
+
+
+
+
+    int deliveredMessages = 0;
+
+    int totalLatency = 0;
+
+    int transmissions = 0;
+
     int time = 0;
 
     int COMM_RANGE = 20;
 
-    Message message;
+    int numberOfMessages = 10;
+
+    int totalMessages = numberOfMessages;
 
     public Simulator(int n) {
         for (int i = 0; i < n; i++) {
@@ -20,10 +33,25 @@ public class Simulator {
 
         }
 
-        message = new Message(1,0,n-1,0);
 
-        nodes.get(0).buffer.add(message);
+
+        for(int i=0; i < numberOfMessages;i++){
+            int source = (int) (Math.random() * nodes.size());
+            int destination = (int) (Math.random() * nodes.size());
+
+            while(destination == source){
+                destination = (int) (Math.random() * nodes.size());
+            }
+
+            Message m = new Message(i, source, destination, 0);
+
+            messages.add(m);
+
+            nodes.get(source).buffer.add(m);
+        }
+
     }
+
 
     public void step() {
 
@@ -54,8 +82,8 @@ public class Simulator {
                 double distance = distance(a,b);
 
                 if (distance < COMM_RANGE){
-                    System.out.println("Contact between " + a.id + " and " + b.id);
-                    Routing.exchange(a,b);
+
+                    Routing.exchange(a,b,this);
                 }
 
             }
@@ -72,18 +100,27 @@ public class Simulator {
 
     private void checkDelivery() {
 
-        Node destination = nodes.get(message.destination);
+        for (Message message : messages) {
 
-        boolean hasMessage = destination.buffer.stream().allMatch(m -> m.id == message.id);
 
-        if(hasMessage && !message.delivered){
-            message.delivered = true;
+            Node destination = nodes.get(message.destination);
 
-            System.out.println("Message delivered at time :"+ time);
 
-            int latency = time - message.creationTime;
+            boolean hasMessage = destination.buffer.stream().allMatch(m -> m.id == message.id);
 
-            System.out.println("latency :"+ latency);
+            if (hasMessage && !message.delivered) {
+                message.delivered = true;
+
+                deliveredMessages++;
+
+                System.out.println("Message delivered at time :" + time);
+
+                int latency = time - message.creationTime;
+
+                totalLatency += latency;
+
+                System.out.println("latency :" + latency);
+            }
         }
     }
 }
